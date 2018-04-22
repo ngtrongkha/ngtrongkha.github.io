@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<!--
+    So Simple Jekyll Theme 3.1.0
+    Copyright 2013-2018 Michael Rose - mademistakes.com | @mmistakes
+    Free for personal and commercial use under the MIT license
+    https://github.com/mmistakes/so-simple-theme/blob/master/LICENSE
+-->
+<html lang="en-US" class="no-js">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  
+
+  
+    <title>Dynamic module loading</title>
+    <meta name="description" content="Thông thường chúng ta import class bằng một khai báo từng thành phần từ module đến class. Ví dụ:">
+    <link rel="canonical" href="http://localhost:4000/Dynamic-module-import/">
+  
+
+  <script>
+    /* Cut the mustard */
+    if ( 'querySelector' in document && 'addEventListener' in window ) {
+      document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + 'js';
+    }
+  </script>
+
+  <link rel="stylesheet" href="/assets/css/main.css">
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,700,700i|Lora:400,400i,700,700i|Playfair+Display:400,400i,700,700i">
+  <link rel="alternate" type="application/atom+xml" title="Kha Nguyen" href="/feed.xml">
+<!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+</head>
+
+
+  <body class="layout--post  dynamic-module-loading">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#primary-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+  <div class="navigation-wrapper">
+    <a href="#menu-toggle" id="menu-toggle">Menu</a>
+    <nav id="primary-nav" class="site-nav animated drop">
+      <ul><li><a href="/">Home</a></li><li><a href="/posts/">Posts</a></li><li><a href="/research/">Research</a></li><li><a href="/projects/">Projects</a></li><li><a href="/search/">Search</a></li></ul>
+    </nav>
+  </div><!-- /.navigation-wrapper -->
+
+
+    
+
+    <main id="main" class="main-content" aria-label="Content">
+  <article class="h-entry">
+    
+
+    <div class="page-wrapper">
+      <header class="page-header">
+        
+        
+          <h1 id="page-title" class="page-title p-name">Dynamic module loading
+</h1>
+        
+      </header>
+
+      <div class="page-sidebar">
+        <div class="page-author h-card p-author"><img src="/images/avatar.jpeg" class="author-avatar u-photo" alt="Kha Nguyen"><div class="author-info"><div class="author-name">
+        <em>by</em> <span class="p-name">Kha Nguyen</span>
+      </div>
+
+<span class="read-time">1 min read</span>
+
+    <time class="page-date dt-published" datetime="2017-07-18T06:17:00+09:00"><a class="u-url" href="">2017-07-18</a>
+</time>
+
+  </div>
+</div>
+
+        
+
+        
+  <h3 class="page-taxonomies-title">Tags</h3>
+  <ul class="page-taxonomies"><li class="page-taxonomy">coding</li><li class="page-taxonomy">python</li>
+  </ul>
+
+
+      </div>
+
+      <div class="page-content">
+        <div class="e-content">
+          <p>Thông thường chúng ta import class bằng một khai báo từng thành phần từ module đến class. Ví dụ:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+</code></pre></div></div>
+<p>Trong ví dụ trên thì os là một module được gán tĩnh, khi chúng ta muốn import một module khác thì phải sửa mã nguồn.
+Tuy nhiên trong trường hợp chúng ta muốn import tự động hơn thì chúng ta sử dụng cách sau.
+Đoạn code tham khảo từ project django-oscar.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">traceback</span>
+
+
+<span class="k">def</span> <span class="nf">_import_module</span><span class="p">(</span><span class="n">module_label</span><span class="p">,</span> <span class="n">classnames</span><span class="p">):</span>
+    <span class="s">"""
+    Imports the module with the given name.
+    Returns None if the module doesn't exist, but propagates any import errors.
+    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">__import__</span><span class="p">(</span><span class="n">module_label</span><span class="p">,</span> <span class="n">fromlist</span><span class="o">=</span><span class="n">classnames</span><span class="p">)</span>
+    <span class="k">except</span> <span class="nb">ImportError</span><span class="p">:</span>
+        <span class="c"># There are 2 reasons why there could be an ImportError:</span>
+        <span class="c">#</span>
+        <span class="c">#  1. Module does not exist. In that case, we ignore the import and</span>
+        <span class="c">#     return None</span>
+        <span class="c">#  2. Module exists but another ImportError occurred when trying to</span>
+        <span class="c">#     import the module. In that case, it is important to propagate the</span>
+        <span class="c">#     error.</span>
+        <span class="c">#</span>
+        <span class="c"># ImportError does not provide easy way to distinguish those two cases.</span>
+        <span class="c"># Fortunately, the traceback of the ImportError starts at __import__</span>
+        <span class="c"># statement. If the traceback has more than one frame, it means that</span>
+        <span class="c"># application was found and ImportError originates within the local app</span>
+        <span class="n">__</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span>
+</code></pre></div></div>
+
+        </div>
+
+        
+
+        
+          
+
+        
+
+        <nav class="page-pagination" role="navigation">
+  
+    <a class="page-previous" href="/XML-Security/">
+      <h4 class="page-pagination-label">Previous</h4>
+      <span class="page-pagination-title">
+        <i class="fas fa-arrow-left"></i> XML Security: A Billion Laughs
+
+      </span>
+    </a>
+  
+
+  
+    <a class="page-next" href="/principles-stacks/">
+      <h4 class="page-pagination-label">Next</h4>
+      <span class="page-pagination-title">
+        TAO
+ <i class="fas fa-arrow-right"></i>
+      </span>
+    </a>
+  
+</nav>
+
+      </div>
+    </div>
+  </article>
+</main>
+
+
+    <footer id="footer" class="site-footer">
+  <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+<div class="social-icons"><a class="social-icon" href="https://twitter.com/__ngtrongkha"><i class="fab fa-twitter-square fa-2x" title="Twitter"></i></a><a class="social-icon" href="https://github.com/lotusirous"><i class="fab fa-github-square fa-2x" title="GitHub"></i></a><a class="social-icon" href="https://github.com/lotusirous"><i class="fab fa-medium fa-2x" title="Medium"></i></a></div><div class="copyright">
+    
+      <p>&copy; 2018 Kha Nguyen. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://github.com/mmistakes/so-simple-theme" rel="nofollow">So Simple</a>.</p>
+    
+  </div>
+</footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+
+
+<!-- MathJax -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+
+</html>

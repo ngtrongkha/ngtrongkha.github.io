@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-04-23T02:05:13+09:00</updated><id>http://localhost:4000/</id><title type="html">Kha Nguyen</title><subtitle>A Man who like to breaking things</subtitle><author><name>Kha Nguyen</name></author><entry><title type="html">TAO</title><link href="http://localhost:4000/principles-stacks/" rel="alternate" type="text/html" title="TAO" /><published>2018-04-11T23:06:00+09:00</published><updated>2018-04-11T23:06:00+09:00</updated><id>http://localhost:4000/principles-stacks</id><content type="html" xml:base="http://localhost:4000/principles-stacks/">&lt;p&gt;My core principles when choosing components for a system are:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Keep it very simple&lt;/li&gt;
+  &lt;li&gt;Don’t re-invent the wheel&lt;/li&gt;
+  &lt;li&gt;Go with proven and solid technologies when you can&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Kha Nguyen</name></author><category term="tao" /><summary type="html">My core principles when choosing components for a system are: Keep it very simple Don’t re-invent the wheel Go with proven and solid technologies when you can</summary></entry><entry><title type="html">Dynamic module loading</title><link href="http://localhost:4000/Dynamic-module-import/" rel="alternate" type="text/html" title="Dynamic module loading" /><published>2017-07-18T06:17:00+09:00</published><updated>2017-07-18T06:17:00+09:00</updated><id>http://localhost:4000/Dynamic-module-import</id><content type="html" xml:base="http://localhost:4000/Dynamic-module-import/">&lt;p&gt;Thông thường chúng ta import class bằng một khai báo từng thành phần từ module đến class. Ví dụ:&lt;/p&gt;
+
+&lt;div class=&quot;language-py highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Trong ví dụ trên thì os là một module được gán tĩnh, khi chúng ta muốn import một module khác thì phải sửa mã nguồn.
+Tuy nhiên trong trường hợp chúng ta muốn import tự động hơn thì chúng ta sử dụng cách sau.
+Đoạn code tham khảo từ project django-oscar.&lt;/p&gt;
+
+&lt;div class=&quot;language-py highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;traceback&lt;/span&gt;
+
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_import_module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;module_label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;classnames&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&quot;&quot;&quot;
+    Imports the module with the given name.
+    Returns None if the module doesn't exist, but propagates any import errors.
+    &quot;&quot;&quot;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;__import__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;module_label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fromlist&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;classnames&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;except&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;ImportError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;# There are 2 reasons why there could be an ImportError:&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;#&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;#  1. Module does not exist. In that case, we ignore the import and&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;#     return None&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;#  2. Module exists but another ImportError occurred when trying to&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;#     import the module. In that case, it is important to propagate the&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;#     error.&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;#&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;# ImportError does not provide easy way to distinguish those two cases.&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;# Fortunately, the traceback of the ImportError starts at __import__&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;# statement. If the traceback has more than one frame, it means that&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;# application was found and ImportError originates within the local app&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exc_traceback&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;exc_info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;frames&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;traceback&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;extract_tb&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;exc_traceback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;frames&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;raise&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>Kha Nguyen</name></author><category term="coding" /><category term="python" /><summary type="html">Thông thường chúng ta import class bằng một khai báo từng thành phần từ module đến class. Ví dụ:</summary></entry><entry><title type="html">XML Security: A Billion Laughs</title><link href="http://localhost:4000/XML-Security/" rel="alternate" type="text/html" title="XML Security: A Billion Laughs" /><published>2016-01-26T02:22:02+09:00</published><updated>2016-01-26T02:22:02+09:00</updated><id>http://localhost:4000/XML-Security</id><content type="html" xml:base="http://localhost:4000/XML-Security/">&lt;h1 id=&quot;what-&quot;&gt;What ?&lt;/h1&gt;
+&lt;p&gt;The Billion Laughs attack is a denial-of-service attack that targets XML parsers in many programming language libraries such as: SAX, Etree, DOM.  It can occur even when using well-formed XML and can also pass XML schema validation.&lt;/p&gt;
+
+&lt;h1 id=&quot;why-should-we-care-about-it-&quot;&gt;Why should we care about it ?&lt;/h1&gt;
+&lt;p&gt;An attacker submits an XML document to a target application where the XML document uses nested entity expansion to produce an excessively large output XML. XML allows the definition of macro-like structures that can be used to simplify the creation of complex structures. However, this capability can be abused to create excessive demands on a processor’s CPU and memory. A small number of nested expansions can result in an exponential growth in demands on memory.&lt;/p&gt;
+
+&lt;h1 id=&quot;how&quot;&gt;How&lt;/h1&gt;
+&lt;h3 id=&quot;background&quot;&gt;Background&lt;/h3&gt;
+&lt;p&gt;In order to understand how Billion laughs attack works, we need to have background in XML entity and some definitions of XML document:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;DTDs (Document Type Definition) are meant to define the expected structure of an XML document. It is a set of markup declarations that defines a document type for an SGML-family markup languages (SGML, XML, HTML).&lt;/li&gt;
+  &lt;li&gt;XML stands for EXtensible Markup Language.&lt;/li&gt;
+  &lt;li&gt;XML was designed to store and transport data.&lt;/li&gt;
+  &lt;li&gt;XML was designed to be both human and machine-readable.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;animal&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;cat&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;action&amp;gt;&lt;/span&gt;meoooo&lt;span class=&quot;nt&quot;&gt;&amp;lt;/action&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/animal&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;XML Entities:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Entities are used to define shortcuts to special characters.&lt;/li&gt;
+  &lt;li&gt;Entities can be declared internal or external.&lt;/li&gt;
+  &lt;li&gt;Entities that are not predefined can be declared internal or external.
+    &lt;ul&gt;
+      &lt;li&gt;Internally declared - the entity is defined within the same document.&lt;/li&gt;
+      &lt;li&gt;Externally declared - the entity is defined in an external document. Only the reference to the external document is given.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The following code will explain what XML entity is:&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY writer &quot;Donald Duck.&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY copyright &quot;Copyright W3Schools.&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;author&amp;gt;&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;&amp;amp;writer;&amp;amp;copyright;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/author&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;When we use &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;writer;&lt;/code&gt; it will symbolic present to writer attribute and get value “Donal Duck”. Similar to that thing, &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;copyright;&lt;/code&gt; will symboic present to copyright and get value “Copyright W3Schools”.&lt;/p&gt;
+
+&lt;h2 id=&quot;exploit&quot;&gt;Exploit&lt;/h2&gt;
+&lt;p&gt;The vanilla Billion Laughs attack is illustrated as XML code follow:&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!DOCTYPE lolz [
+&amp;lt;!ENTITY lol &quot;lol&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol2 &quot;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol3 &quot;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol4 &quot;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol5 &quot;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol6 &quot;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol7 &quot;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol8 &quot;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol9 &quot;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&quot;&amp;gt;&lt;/span&gt;
+]&amp;gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;lolz&amp;gt;&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;&amp;amp;lol9;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/lolz&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In this example, there are 10 different XML entities, lol – lol9. The first entity, lol is defined to be the string “lol”.  However, each of the other entities are defined to be 10 of another entity.  The document content section of this XML file contains a reference to only one instance of the entity lol9.  However, when this is being parsed by a DOM or SAX parser, when lol9 is encountered, it is expanded into 10 lol8’s, each of which is expanded into 10 lol7’s, and so on and so forth.  By the time everything is expanded to the text lol, there are 100,000,000 instances of the string lol.  If there was one more entity, or lol was defined as 10 strings of “lol”, there would be a Billion “lol”s, hence the name of the attack.  Needless to say, these expansions consumes an exponential amount of resources and time, causing the DOS.&lt;/p&gt;
+
+&lt;h1 id=&quot;demo&quot;&gt;Demo&lt;/h1&gt;
+&lt;p&gt;XML file name &lt;code class=&quot;highlighter-rouge&quot;&gt;lol.xml&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!DOCTYPE lolz [
+&amp;lt;!ENTITY lol &quot;lol&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol2 &quot;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&amp;amp;lol;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol3 &quot;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&amp;amp;lol2;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol4 &quot;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&amp;amp;lol3;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol5 &quot;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&amp;amp;lol4;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol6 &quot;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&amp;amp;lol5;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol7 &quot;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&amp;amp;lol6;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol8 &quot;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&amp;amp;lol7;&quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!ENTITY lol9 &quot;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&amp;amp;lol8;&quot;&amp;gt;&lt;/span&gt;
+]&amp;gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;lolz&amp;gt;&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;&amp;amp;lol9;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/lolz&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Python code:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;xml.etree.ElementTree&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ET&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;tree&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ET&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'lol.xml'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;root&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tree&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getroot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Execute it.&lt;/p&gt;
+
+&lt;h1 id=&quot;mitigating&quot;&gt;Mitigating&lt;/h1&gt;
+&lt;p&gt;Because the behavior of each XML parser may be different based on implementation, there is no one way to prevent Billion Laughs attacks.  However, there are a few main techniques used to prevent this denial-of-service attack.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Turn off entity expansion.&lt;/li&gt;
+  &lt;li&gt;Limit the number of Entity Reference Nodes so that the parser can expand.&lt;/li&gt;
+  &lt;li&gt;Limit the number of characters entities can expand to.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Kha Nguyen</name></author><category term="security" /><summary type="html">What ? The Billion Laughs attack is a denial-of-service attack that targets XML parsers in many programming language libraries such as: SAX, Etree, DOM. It can occur even when using well-formed XML and can also pass XML schema validation.</summary></entry><entry><title type="html">new Blog()</title><link href="http://localhost:4000/new-blog/" rel="alternate" type="text/html" title="new Blog()" /><published>2013-11-10T19:18:00+09:00</published><updated>2013-11-10T19:18:00+09:00</updated><id>http://localhost:4000/new-blog</id><content type="html" xml:base="http://localhost:4000/new-blog/">&lt;p&gt;So, I’m starting a new blog.&lt;/p&gt;
+
+&lt;p&gt;Specifically, I focus on programing, deep learning and web security blog.&lt;/p&gt;
+
+&lt;div class=&quot;language-py highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;blog&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Blog&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;blog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Thanks for follow me. Keep safe and secure!&lt;/p&gt;</content><author><name>Kha Nguyen</name></author><category term="blog" /><summary type="html">So, I’m starting a new blog.</summary></entry></feed>
